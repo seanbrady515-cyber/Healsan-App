@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Healsan Drafting Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--surface:#111113;--surface2:#18181b;
+  --border:#27272a;--border2:#3f3f46;
+  --accent:#c9a96e;--accent-dim:rgba(201,169,110,0.12);
+  --green:#7ec8a4;--green-dim:rgba(126,200,164,0.1);
+  --text:#e4e4e7;--muted:#71717a;--danger:#f87171;
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:54px;
+  background:rgba(9,9,11,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 20px}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--accent);letter-spacing:.04em;white-space:nowrap}
+.nav-div{color:var(--border2);display:none}
+.nav-sec{color:var(--muted);font-size:12px;display:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-space{flex:1}
+.nav-pill{background:var(--green-dim);border:1px solid var(--green);color:var(--green);padding:3px 12px;border-radius:20px;font-size:11px;white-space:nowrap;display:none}
+.nav-client{background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent);padding:3px 12px;border-radius:20px;font-size:11px;cursor:pointer;white-space:nowrap}
+#nav-back{display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:var(--radius);cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;transition:all .2s;white-space:nowrap}
+#nav-back:hover{border-color:var(--accent);color:var(--accent)}
+
+/* PAGES */
+.page{display:none;padding-top:54px;min-height:100vh}
+.page.active{display:block}
+.main{max-width:880px;margin:0 auto;padding:36px 20px 80px}
+
+/* HOME */
+.home-hero{display:flex;align-items:center;gap:18px;margin-bottom:10px;padding-top:6px}
+.logo-block{width:52px;height:52px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#09090b;border-radius:4px;flex-shrink:0}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;line-height:1.1}
+.hero-title span{color:var(--accent)}
+.hero-sub{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.home-meta{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap;margin-top:14px}
+.cv-status{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border)}
+.cv-status.on{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.cv-status.off{color:var(--muted)}
+.client-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;transition:all .2s}
+.client-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* GRID */
+.section-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:12px}
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 18px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:all .22s;position:relative;overflow:hidden}
+.section-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),transparent);opacity:0;transition:opacity .22s}
+.section-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.section-card:hover::after{opacity:1}
+.card-icon{font-size:20px;color:var(--accent);position:relative;z-index:1}
+.card-label{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--text);position:relative;z-index:1}
+.card-desc{font-size:11px;color:var(--muted);position:relative;z-index:1}
+.card-arrow{font-size:16px;color:var(--border2);margin-top:auto;align-self:flex-end;transition:color .2s;position:relative;z-index:1}
+.section-card:hover .card-arrow{color:var(--accent)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:440px;max-height:80vh;overflow-y:auto}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:14px;color:var(--accent)}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;margin-top:-4px}
+.modal-close:hover{color:var(--text)}
+.client-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.client-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px 12px;cursor:pointer;transition:all .2s}
+.client-item:hover,.client-item.sel{border-color:var(--accent);background:var(--accent-dim)}
+.client-item-name{flex:1;font-size:13px}
+.client-item-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px}
+.client-item-del:hover{color:var(--danger)}
+.new-client-row{display:flex;gap:8px}
+.modal-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px}
+.modal-input:focus{outline:none;border-color:var(--accent)}
+.btn-sm{background:var(--accent);color:#09090b;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;white-space:nowrap}
+.btn-sm:hover{background:#d9bc85}
+
+/* SECTION */
+.section-shell{display:flex;flex-direction:column;gap:20px}
+.sec-header{display:flex;align-items:center;gap:12px}
+.sec-icon{font-size:22px;color:var(--accent)}
+.sec-header h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600}
+.sec-desc{color:var(--muted);font-size:12px;margin-top:-12px;line-height:1.6}
+
+/* DROP ZONE — mobile safe */
+.drop-zone{border:1px dashed var(--border2);border-radius:var(--radius);padding:26px;text-align:center;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+.drop-zone input[type="file"]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
+.drop-icon{font-size:26px;color:var(--accent);pointer-events:none}
+.drop-zone p{color:var(--text);font-size:13px;pointer-events:none}
+.drop-zone span{font-size:11px;color:var(--muted);pointer-events:none}
+
+/* FILE CHIPS */
+.file-list{display:flex;flex-wrap:wrap;gap:7px}
+.file-chip{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 9px;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.chip-num{background:var(--accent);color:#09090b;min-width:19px;height:19px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.chip-name{font-size:12px;color:var(--text);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px;line-height:1}
+.chip-remove:hover{color:var(--danger)}
+
+/* CONTRIBUTION SLOTS */
+.contrib-builder{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:9px}
+.contrib-builder h4{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.contrib-slot{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px 11px;flex-wrap:wrap}
+.contrib-label{font-size:12px;color:var(--accent);white-space:nowrap;min-width:105px}
+.contrib-input{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 9px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px}
+.contrib-input:focus{outline:none;border-color:var(--accent)}
+.contrib-add-btn{background:none;border:1px dashed var(--border2);color:var(--muted);border-radius:6px;padding:7px;cursor:pointer;font-size:12px;transition:all .2s;text-align:center}
+.contrib-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.contrib-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.contrib-del:hover{color:var(--danger)}
+
+/* COMMAND */
+.command-row{display:flex;gap:9px;align-items:flex-start;flex-wrap:wrap}
+.command-input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;min-height:68px;transition:border-color .2s}
+.command-input:focus{outline:none;border-color:var(--accent)}
+.command-input::placeholder{color:var(--muted)}
+.run-btn{background:var(--accent);color:#09090b;border:none;border-radius:6px;padding:11px 18px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;white-space:nowrap;transition:all .2s}
+.run-btn:hover:not(:disabled){background:#d9bc85}
+.run-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* SEARCH */
+.search-row{display:flex;gap:9px;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 13px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px}
+.search-input:focus{outline:none;border-color:var(--green)}
+.search-btn{background:var(--green);color:#09090b;border:none;border-radius:6px;padding:9px 15px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;white-space:nowrap;transition:all .2s}
+.search-btn:hover:not(:disabled){background:#92c9b6}
+.search-btn:disabled{opacity:.4;cursor:not-allowed}
+.or-divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* DRAFT */
+.draft-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeIn .3s}
+.draft-toolbar{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.draft-left{display:flex;align-items:center;gap:9px}
+.draft-label{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}
+.draft-ver{font-size:10px;color:var(--muted)}
+.toolbar-btns{display:flex;gap:7px}
+.tool-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;transition:all .2s}
+.tool-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tool-btn.export{border-color:var(--green);color:var(--green)}
+.tool-btn.export:hover{background:var(--green-dim)}
+.draft-body{padding:20px;max-height:500px;overflow-y:auto;background:var(--surface)}
+.draft-text{font-size:12.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;font-family:'DM Mono',monospace}
+.draft-hist{display:flex;gap:6px;padding:9px 14px;background:var(--surface2);border-top:1px solid var(--border);overflow-x:auto}
+.hist-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:4px;cursor:pointer;font-size:11px;white-space:nowrap;transition:all .2s}
+.hist-btn.cur{border-color:var(--accent);color:var(--accent)}
+.hist-btn:hover{border-color:var(--border2);color:var(--text)}
+.feedback-zone{padding:11px 14px;border-top:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;gap:7px}
+.fb-row{display:flex;gap:9px;flex-wrap:wrap}
+.fb-input{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:7px 11px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:none;min-height:44px}
+.fb-input:focus{outline:none;border-color:var(--accent)}
+.fb-input::placeholder{color:var(--muted)}
+.fb-btn{background:none;border:1px solid var(--accent);color:var(--accent);padding:7px 13px;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;transition:all .2s}
+.fb-btn:hover{background:var(--accent-dim)}
+.fb-note{font-size:11px;color:var(--muted)}
+.fb-note span{color:var(--green)}
+
+/* MEMORY PANEL */
+.memory-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:9px}
+.memory-panel h4{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.08em}
+.memory-list{display:flex;flex-direction:column;gap:5px;max-height:130px;overflow-y:auto}
+.memory-item{display:flex;align-items:flex-start;gap:7px;background:var(--surface2);border-left:2px solid var(--green);padding:6px 9px;border-radius:4px;font-size:11px;color:var(--text)}
+.mem-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;margin-left:auto;flex-shrink:0;line-height:1}
+.mem-del:hover{color:var(--danger)}
+
+/* LOADING */
+.loading-box{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.dots{display:flex;gap:7px}
+.dots span{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:dot 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{transform:scale(.55);opacity:.35}40%{transform:scale(1);opacity:1}}
+.loading-msg{color:var(--muted);font-size:12px}
+
+@media(max-width:580px){
+  .command-row,.search-row,.fb-row,.new-client-row{flex-direction:column}
+  .run-btn,.search-btn,.fb-btn,.btn-sm{width:100%}
+  .main{padding:24px 14px 60px}
+  .hero-title{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <span class="nav-logo">Healsan</span>
+  <span class="nav-div" id="nav-div">›</span>
+  <span class="nav-sec" id="nav-sec"></span>
+  <button id="nav-back" onclick="goHome()">← Home</button>
+  <div class="nav-space"></div>
+  <span class="nav-client" id="nav-client" onclick="openModal()">👤 Default Client</span>
+  <span class="nav-pill" id="nav-cv-pill">✓ CV Active</span>
+</nav>
+
+<!-- CLIENT MODAL -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h3>Client Manager</h3>
+    <div class="client-list" id="client-list"></div>
+    <div class="new-client-row">
+      <input class="modal-input" id="new-client-input" placeholder="New client name…" onkeydown="if(event.key==='Enter')addClient()"/>
+      <button class="btn-sm" onclick="addClient()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="main">
+    <div class="home-hero">
+      <div class="logo-block">H</div>
+      <div>
+        <div class="hero-title">Healsan <span>Drafting Suite</span></div>
+        <div class="hero-sub">NIW · EB-1A · O-1 Application Documents</div>
+      </div>
+    </div>
+    <div class="home-meta">
+      <span class="cv-status off" id="home-cv-status">No CV loaded</span>
+      <button class="client-btn" onclick="openModal()">Switch Client</button>
+    </div>
+    <div class="section-grid">
+      <button class="section-card" onclick="goSection('cv')"><span class="card-icon">◈</span><span class="card-label">CV Builder</span><span class="card-desc">Build or upload client CV as context</span><span class="card-arrow">→</span></button>
+      <button class="section-card" onclick="goSection('rs')"><span class="card-icon">◉</span><span class="card-label">Research Statement</span><span class="card-desc">Draft contributions with article assignments</span><span class="card-arrow">→</span></button>
+      <button class="section-card" onclick="goSection('rp')"><span class="card-icon">◎</span><span class="card-label">Research Plan</span><span class="card-desc">Future work & US national interest</span><span class="card-arrow">→</span></button>
+      <button class="section-card" onclick="goSection('cit')"><span class="card-icon">◐</span><span class="card-label">Notable Citations</span><span class="card-desc">Find & draft citation evidence</span><span class="card-arrow">→</span></button>
+      <button class="section-card" onclick="goSection('rec')"><span class="card-icon">◑</span><span class="card-label">Recommendation Letters</span><span class="card-desc">Draft expert endorsements</span><span class="card-arrow">→</span></button>
+      <button class="section-card" onclick="goSection('pet')"><span class="card-icon">◒</span><span class="card-label">Petition Letter</span><span class="card-desc">Final immigration petition</span><span class="card-arrow">→</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- CV -->
+<div class="page" id="page-cv">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◈</span><h2>CV Builder</h2></div>
+    <p class="sec-desc">Upload raw client materials to build a CV, or upload an existing CV directly. This becomes the context foundation for every other section.</p>
+    <label class="drop-zone" id="cv-drop" ondragover="dz(event,'cv-drop')" ondragleave="dzl('cv-drop')" ondrop="dzd(event,'cv','cv-drop')">
+      <input type="file" multiple accept=".pdf,.doc,.docx,.txt" onchange="addF('cv',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop files to upload</p><span>PDF · DOC · DOCX · TXT</span>
+    </label>
+    <div class="file-list" id="cv-flist"></div>
+    <div class="command-row">
+      <textarea class="command-input" id="cv-cmd" placeholder='Optional: "Focus on research publications and awards only"'></textarea>
+      <button class="run-btn" id="cv-run" onclick="runSec('cv')">Generate CV →</button>
+    </div>
+    <div id="cv-out"></div>
+    <div id="cv-mem"></div>
+  </div></div>
+</div>
+
+<!-- RESEARCH STATEMENT -->
+<div class="page" id="page-rs">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◉</span><h2>Research Statement</h2></div>
+    <p class="sec-desc">Upload your client's articles. Assign them to contributions using the slots below, then add any additional instructions.</p>
+    <label class="drop-zone" id="rs-drop" ondragover="dz(event,'rs-drop')" ondragleave="dzl('rs-drop')" ondrop="dzd(event,'rs','rs-drop')">
+      <input type="file" multiple accept=".pdf,.doc,.docx,.txt" onchange="addF('rs',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop articles</p><span>PDF · DOC · DOCX · TXT</span>
+    </label>
+    <div class="file-list" id="rs-flist"></div>
+    <div class="contrib-builder">
+      <h4>Contribution Assignment</h4>
+      <div id="rs-slots"></div>
+      <button class="contrib-add-btn" onclick="addSlot()">+ Add Contribution</button>
+    </div>
+    <div class="command-row">
+      <textarea class="command-input" id="rs-cmd" placeholder='Additional instructions, e.g. "Emphasise translational impact. Audience is USCIS adjudicators."'></textarea>
+      <button class="run-btn" id="rs-run" onclick="runSec('rs')">Draft Research Statement →</button>
+    </div>
+    <div id="rs-out"></div>
+    <div id="rs-mem"></div>
+  </div></div>
+</div>
+
+<!-- RESEARCH PLAN -->
+<div class="page" id="page-rp">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◎</span><h2>Research Plan</h2></div>
+    <p class="sec-desc">Outline the client's proposed future research in the US. Emphasise national benefit, feasibility, and unique expertise.</p>
+    <label class="drop-zone" id="rp-drop" ondragover="dz(event,'rp-drop')" ondragleave="dzl('rp-drop')" ondrop="dzd(event,'rp','rp-drop')">
+      <input type="file" multiple accept=".pdf,.doc,.docx,.txt" onchange="addF('rp',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop supporting materials</p><span>PDF · DOC · DOCX · TXT</span>
+    </label>
+    <div class="file-list" id="rp-flist"></div>
+    <div class="command-row">
+      <textarea class="command-input" id="rp-cmd" placeholder='e.g. "5-year plan. Client is an oncologist. Emphasise US national interest in cancer research."'></textarea>
+      <button class="run-btn" id="rp-run" onclick="runSec('rp')">Draft Research Plan →</button>
+    </div>
+    <div id="rp-out"></div>
+    <div id="rp-mem"></div>
+  </div></div>
+</div>
+
+<!-- CITATIONS -->
+<div class="page" id="page-cit">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◐</span><h2>Notable Citations</h2></div>
+    <p class="sec-desc">Search the web for papers citing your client's work, or upload PDFs of citing papers directly.</p>
+    <div class="search-row">
+      <input class="search-input" id="cit-search" placeholder='e.g. "papers citing Dr. Chen 2020 immunotherapy study"'/>
+      <button class="search-btn" id="cit-sbtn" onclick="runSearch()">🔍 Web Search</button>
+    </div>
+    <div class="or-divider"><span>or upload PDFs of citing papers</span></div>
+    <label class="drop-zone" id="cit-drop" ondragover="dz(event,'cit-drop')" ondragleave="dzl('cit-drop')" ondrop="dzd(event,'cit','cit-drop')">
+      <input type="file" multiple accept=".pdf" onchange="addF('cit',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop citing papers</p><span>PDF only</span>
+    </label>
+    <div class="file-list" id="cit-flist"></div>
+    <div class="command-row">
+      <textarea class="command-input" id="cit-cmd" placeholder='e.g. "Extract the exact sentence where each author relied on the client work."'></textarea>
+      <button class="run-btn" id="cit-run" onclick="runSec('cit')">Draft Citations →</button>
+    </div>
+    <div id="cit-out"></div>
+    <div id="cit-mem"></div>
+  </div></div>
+</div>
+
+<!-- RECOMMENDATION -->
+<div class="page" id="page-rec">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◑</span><h2>Recommendation Letters</h2></div>
+    <p class="sec-desc">Draft expert endorsement letters. Specify the recommender's details and focus areas.</p>
+    <label class="drop-zone" id="rec-drop" ondragover="dz(event,'rec-drop')" ondragleave="dzl('rec-drop')" ondrop="dzd(event,'rec','rec-drop')">
+      <input type="file" multiple accept=".pdf,.doc,.docx,.txt" onchange="addF('rec',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop materials</p><span>PDF · DOC · DOCX · TXT</span>
+    </label>
+    <div class="file-list" id="rec-flist"></div>
+    <div class="command-row">
+      <textarea class="command-input" id="rec-cmd" placeholder='e.g. "Letter from Prof. James Anderson, Harvard Medical School. Emphasise citation impact and field leadership."'></textarea>
+      <button class="run-btn" id="rec-run" onclick="runSec('rec')">Draft Letter →</button>
+    </div>
+    <div id="rec-out"></div>
+    <div id="rec-mem"></div>
+  </div></div>
+</div>
+
+<!-- PETITION -->
+<div class="page" id="page-pet">
+  <div class="main"><div class="section-shell">
+    <div class="sec-header"><span class="sec-icon">◒</span><h2>Petition Letter</h2></div>
+    <p class="sec-desc">Draft the primary USCIS cover letter for NIW or EB-1A. Specify the visa category and key arguments.</p>
+    <label class="drop-zone" id="pet-drop" ondragover="dz(event,'pet-drop')" ondragleave="dzl('pet-drop')" ondrop="dzd(event,'pet','pet-drop')">
+      <input type="file" multiple accept=".pdf,.doc,.docx,.txt" onchange="addF('pet',this.files)"/>
+      <div class="drop-icon">⊕</div><p>Tap or drop supporting materials</p><span>PDF · DOC · DOCX · TXT</span>
+    </label>
+    <div class="file-list" id="pet-flist"></div>
+    <div class="command-row">
+      <textarea class="command-input" id="pet-cmd" placeholder='e.g. "NIW petition. Client is a biomedical engineer. Lead with national interest argument. Cite Matter of Dhanasar."'></textarea>
+      <button class="run-btn" id="pet-run" onclick="runSec('pet')">Draft Petition →</button>
+    </div>
+    <div id="pet-out"></div>
+    <div id="pet-mem"></div>
+  </div></div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+const S = {
+  client: 'Default Client',
+  clients: ['Default Client'],
+  files: {cv:[],rs:[],rp:[],cit:[],rec:[],pet:[]},
+  slots: [{label:'Contribution 1',val:''}],
+  data: {}
+};
+const SEC_LABELS = {cv:'CV Builder',rs:'Research Statement',rp:'Research Plan',cit:'Notable Citations',rec:'Recommendation Letters',pet:'Petition Letter'};
+
+function ck(sec){ return S.client+'::'+sec; }
+function cd(sec){
+  const k=ck(sec);
+  if(!S.data[k]) S.data[k]={drafts:[],memories:[],idx:-1};
+  return S.data[k];
+}
+function save(){
+  try{ localStorage.setItem('h_v3',JSON.stringify({client:S.client,clients:S.clients,data:S.data,slots:S.slots})); }catch(e){}
+}
+function load(){
+  try{
+    const r=localStorage.getItem('h_v3');
+    if(!r) return;
+    const p=JSON.parse(r);
+    S.client=p.client||'Default Client';
+    S.clients=p.clients||['Default Client'];
+    S.data=p.data||{};
+    S.slots=p.slots||[{label:'Contribution 1',val:''}];
+  }catch(e){}
+}
+load();
+
+// ── NAV ────────────────────────────────────────────────────────
+function goHome(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  document.getElementById('nav-back').style.display='none';
+  document.getElementById('nav-div').style.display='none';
+  document.getElementById('nav-sec').style.display='none';
+  updateHome();
+  window.scrollTo(0,0);
+}
+function goSection(sec){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+sec).classList.add('active');
+  document.getElementById('nav-back').style.display='inline-block';
+  document.getElementById('nav-div').style.display='inline';
+  const ns=document.getElementById('nav-sec');
+  ns.style.display='inline';
+  ns.textContent=SEC_LABELS[sec]||'';
+  updateNavPills();
+  if(sec==='rs') renderSlots();
+  renderMem(sec);
+  renderFlist(sec);
+  const d=cd(sec);
+  if(d.drafts.length>0) renderDraft(sec,d.idx>=0?d.idx:d.drafts.length-1);
+  window.scrollTo(0,0);
+}
+function updateHome(){
+  const d=cd('cv');
+  const el=document.getElementById('home-cv-status');
+  if(d.drafts.length>0){el.textContent='✓ CV loaded for '+S.client;el.className='cv-status on';}
+  else{el.textContent='No CV loaded for '+S.client;el.className='cv-status off';}
+  document.getElementById('nav-client').textContent='👤 '+S.client;
+  updateNavPills();
+}
+function updateNavPills(){
+  document.getElementById('nav-client').textContent='👤 '+S.client;
+  const d=cd('cv');
+  document.getElementById('nav-cv-pill').style.display=d.drafts.length>0?'inline-block':'none';
+}
+
+// ── CLIENT MODAL ───────────────────────────────────────────────
+function openModal(){ renderClientList(); document.getElementById('client-modal').classList.add('open'); }
+function closeModal(){ document.getElementById('client-modal').classList.remove('open'); }
+function renderClientList(){
+  document.getElementById('client-list').innerHTML=S.clients.map((c,i)=>`
+    <div class="client-item${c===S.client?' sel':''}" onclick="selClient('${esc(c)}')">
+      <span class="client-item-name">${esc(c)}</span>
+      ${S.clients.length>1?`<button class="client-item-del" onclick="event.stopPropagation();delClient(${i})">×</button>`:''}
+    </div>`).join('');
+}
+function selClient(name){ S.client=name; save(); closeModal(); updateHome(); }
+function addClient(){
+  const inp=document.getElementById('new-client-input');
+  const n=inp.value.trim();
+  if(!n||S.clients.includes(n)) return;
+  S.clients.push(n); inp.value=''; selClient(n); renderClientList();
+}
+function delClient(i){
+  if(S.clients.length<=1) return;
+  const n=S.clients[i]; S.clients.splice(i,1);
+  if(S.client===n) S.client=S.clients[0];
+  save(); renderClientList(); updateHome();
+}
+
+// ── FILES ──────────────────────────────────────────────────────
+function dz(e,id){ e.preventDefault(); document.getElementById(id).classList.add('drag'); }
+function dzl(id){ document.getElementById(id).classList.remove('drag'); }
+function dzd(e,sec,id){ e.preventDefault(); dzl(id); addF(sec,e.dataTransfer.files); }
+function addF(sec,fl){ Array.from(fl).forEach(f=>S.files[sec].push(f)); renderFlist(sec); }
+function removeF(sec,i){ S.files[sec].splice(i,1); renderFlist(sec); }
+function renderFlist(sec){
+  const el=document.getElementById(sec+'-flist');
+  if(!el) return;
+  el.innerHTML=S.files[sec].map((f,i)=>`
+    <div class="file-chip">
+      <span class="chip-num">${i+1}</span>
+      <span class="chip-name" title="${esc(f.name)}">${esc(f.name)}</span>
+      <button class="chip-remove" onclick="removeF('${sec}',${i})">×</button>
+    </div>`).join('');
+}
+
+// ── CONTRIBUTION SLOTS ─────────────────────────────────────────
+function renderSlots(){
+  document.getElementById('rs-slots').innerHTML=S.slots.map((s,i)=>`
+    <div class="contrib-slot">
+      <span class="contrib-label">${esc(s.label)}</span>
+      <input class="contrib-input" value="${esc(s.val||'')}" placeholder='e.g. "Articles 1, 2, 3 — CRISPR delivery work"' oninput="S.slots[${i}].val=this.value;save()"/>
+      <button class="contrib-del" onclick="removeSlot(${i})">×</button>
+    </div>`).join('');
+}
+function addSlot(){ S.slots.push({label:'Contribution '+(S.slots.length+1),val:''}); save(); renderSlots(); }
+function removeSlot(i){ S.slots.splice(i,1); S.slots.forEach((s,j)=>s.label='Contribution '+(j+1)); save(); renderSlots(); }
+function getContrib(){ return S.slots.filter(s=>s.val&&s.val.trim()).map(s=>`${s.label}: ${s.val}`).join('\n'); }
+
+// ── MEMORY ─────────────────────────────────────────────────────
+function renderMem(sec){
+  const el=document.getElementById(sec+'-mem');
+  if(!el) return;
+  const d=cd(sec);
+  if(d.memories.length===0){el.innerHTML='';return;}
+  el.innerHTML=`<div class="memory-panel">
+    <h4>🧠 Learned Preferences (${d.memories.length})</h4>
+    <div class="memory-list">${d.memories.map((m,i)=>`
+      <div class="memory-item"><span>${esc(m)}</span>
+        <button class="mem-del" onclick="delMem('${sec}',${i})">×</button>
+      </div>`).join('')}
+    </div></div>`;
+}
+function addMem(sec,text){ const d=cd(sec); d.memories.push(text.length>120?text.slice(0,120)+'…':text); if(d.memories.length>10) d.memories.shift(); save(); renderMem(sec); }
+function delMem(sec,i){ cd(sec).memories.splice(i,1); save(); renderMem(sec); }
+function getMemCtx(sec){ const m=cd(sec).memories; return m.length>0?m.join('\n'):''; }
+
+// ── DRAFT RENDER ───────────────────────────────────────────────
+function renderDraft(sec,idx){
+  const d=cd(sec); d.idx=idx;
+  const draft=d.drafts[idx];
+  const el=document.getElementById(sec+'-out');
+  if(!el) return;
+  const hist=d.drafts.length>1?`<div class="draft-hist">${d.drafts.map((_,i)=>`<button class="hist-btn${i===idx?' cur':''}" onclick="renderDraft('${sec}',${i})">v${i+1}</button>`).join('')}</div>`:'';
+  el.innerHTML=`<div class="draft-wrap">
+    <div class="draft-toolbar">
+      <div class="draft-left"><span class="draft-label">Draft Output</span><span class="draft-ver">v${idx+1} of ${d.drafts.length}</span></div>
+      <div class="toolbar-btns">
+        <button class="tool-btn" onclick="copyD('${sec}')">Copy</button>
+        <button class="tool-btn export" onclick="exportD('${sec}')">Export .txt</button>
+      </div>
+    </div>
+    <div class="draft-body"><pre class="draft-text">${esc(draft)}</pre></div>
+    ${hist}
+    <div class="feedback-zone">
+      <div class="fb-row">
+        <textarea class="fb-input" id="${sec}-fb" placeholder="Give feedback to improve this draft…"></textarea>
+        <button class="fb-btn" onclick="submitFb('${sec}')">Improve ↑</button>
+      </div>
+      <div class="fb-note">Feedback is <span>remembered</span> for future drafts for this client.</div>
+    </div>
+  </div>`;
+}
+function copyD(sec){ const d=cd(sec); navigator.clipboard.writeText(d.drafts[d.idx>=0?d.idx:d.drafts.length-1]).catch(()=>{}); }
+function exportD(sec){
+  const d=cd(sec); const txt=d.drafts[d.idx>=0?d.idx:d.drafts.length-1];
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download=`${S.client}-${SEC_LABELS[sec]||sec}.txt`; a.click();
+}
+
+// ── API CALLS ──────────────────────────────────────────────────
+async function runSec(sec){
+  const btn=document.getElementById(sec+'-run');
+  const outEl=document.getElementById(sec+'-out');
+  btn.disabled=true;
+  outEl.innerHTML=`<div class="loading-box"><div class="dots"><span></span><span></span><span></span></div><p class="loading-msg">Drafting — this may take a moment…</p></div>`;
+
+  try{
+    const fd=new FormData();
+    fd.append('section',sec);
+    fd.append('command',document.getElementById(sec+'-cmd')?.value||'');
+    fd.append('memories',getMemCtx(sec));
+
+    // CV context
+    const cvD=cd('cv');
+    if(cvD.drafts.length>0 && sec!=='cv'){
+      fd.append('cv_context',cvD.drafts[cvD.idx>=0?cvD.idx:cvD.drafts.length-1]);
+    }
+
+    // Contrib slots
+    if(sec==='rs') fd.append('contrib',getContrib());
+
+    // Files
+    S.files[sec].forEach(f=>fd.append('files',f));
+
+    const res=await fetch('/api/draft',{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+
+    const d=cd(sec);
+    d.drafts.push(data.result);
+    d.idx=d.drafts.length-1;
+    save();
+    renderDraft(sec,d.idx);
+    renderMem(sec);
+  }catch(e){
+    outEl.innerHTML=`<div class="loading-box"><p style="color:var(--danger)">Error: ${esc(e.message)}</p></div>`;
+  }
+  btn.disabled=false;
+}
+
+async function runSearch(){
+  const btn=document.getElementById('cit-sbtn');
+  const outEl=document.getElementById('cit-out');
+  const query=document.getElementById('cit-search').value.trim();
+  if(!query) return;
+  btn.disabled=true;
+  outEl.innerHTML=`<div class="loading-box"><div class="dots"><span></span><span></span><span></span></div><p class="loading-msg">Searching the web…</p></div>`;
+
+  try{
+    const cvD=cd('cv');
+    const cvCtx=cvD.drafts.length>0?cvD.drafts[cvD.idx>=0?cvD.idx:cvD.drafts.length-1]:'';
+    const res=await fetch('/api/search',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({query,cv_context:cvCtx,memories:getMemCtx('cit')})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    const d=cd('cit');
+    d.drafts.push(data.result);
+    d.idx=d.drafts.length-1;
+    save();
+    renderDraft('cit',d.idx);
+    renderMem('cit');
+  }catch(e){
+    outEl.innerHTML=`<div class="loading-box"><p style="color:var(--danger)">Error: ${esc(e.message)}</p></div>`;
+  }
+  btn.disabled=false;
+}
+
+async function submitFb(sec){
+  const fbEl=document.getElementById(sec+'-fb');
+  const feedback=fbEl?.value.trim();
+  if(!feedback) return;
+  const d=cd(sec);
+  const prevDraft=d.drafts[d.idx>=0?d.idx:d.drafts.length-1];
+  const btn=document.getElementById(sec+'-run');
+  const outEl=document.getElementById(sec+'-out');
+  if(btn) btn.disabled=true;
+  outEl.innerHTML=`<div class="loading-box"><div class="dots"><span></span><span></span><span></span></div><p class="loading-msg">Revising based on your feedback…</p></div>`;
+
+  addMem(sec,'Feedback: '+feedback);
+
+  try{
+    const fd=new FormData();
+    fd.append('section',sec);
+    fd.append('feedback',feedback);
+    fd.append('previous_draft',prevDraft);
+    fd.append('memories',getMemCtx(sec));
+    const cvD=cd('cv');
+    if(cvD.drafts.length>0 && sec!=='cv'){
+      fd.append('cv_context',cvD.drafts[cvD.idx>=0?cvD.idx:cvD.drafts.length-1]);
+    }
+    const res=await fetch('/api/draft',{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    d.drafts.push(data.result);
+    d.idx=d.drafts.length-1;
+    save();
+    renderDraft(sec,d.idx);
+    renderMem(sec);
+  }catch(e){
+    outEl.innerHTML=`<div class="loading-box"><p style="color:var(--danger)">Error: ${esc(e.message)}</p></div>`;
+  }
+  if(btn) btn.disabled=false;
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── INIT ───────────────────────────────────────────────────────
+updateHome();
+</script>
+</body>
+</html>
